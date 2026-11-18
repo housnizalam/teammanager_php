@@ -14,7 +14,7 @@ function formationPlayerName($name)
     return $firstInitial . ". " . $lastName;
 }
 
-function showFormation($players)
+function showFormation($players, ?callable $detailsUrl = null)
 {
     // Required players for 4-3-3
     $required = [
@@ -142,9 +142,35 @@ function showFormation($players)
                             <?= htmlspecialchars(formationPlayerName($player["name"])) ?> </div>
                     <?php endif; ?>
 
-                    <div class="player-point">
-                        <?= $position ?>
-                    </div>
+
+                    <?php
+                    // ============================================
+                    // FORMATION - Clickable Player Position
+                    // ============================================
+
+                    $playerLink = ($player && $detailsUrl)
+                        ? $detailsUrl($player)
+                        : null;
+                    ?>
+
+                    <?php if ($playerLink): ?>
+
+                        <a
+                            class="player-point player-point-link"
+                            href="<?= htmlspecialchars($playerLink, ENT_QUOTES, 'UTF-8') ?>"
+                            title="View player details"
+                            aria-label="View <?= htmlspecialchars($player['name'], ENT_QUOTES, 'UTF-8') ?> details">
+                            <?= htmlspecialchars($position) ?>
+                        </a>
+
+                    <?php else: ?>
+
+                        <div class="player-point">
+                            <?= htmlspecialchars($position) ?>
+                        </div>
+
+                    <?php endif; ?>
+
                 </div>
 
             <?php endforeach; ?>

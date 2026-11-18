@@ -176,7 +176,7 @@ function showListFilters(
         value="' . htmlspecialchars((string)$selectedLimit) . '"
         style="width: 80px;">';
 
-    // No Apply button
+    // Reset button
     echo '<a href="?' . htmlspecialchars(http_build_query($hidden)) . '">Reset</a>';
 
     echo '</form>';
@@ -227,7 +227,7 @@ function showListFilters(
             timer = setTimeout(() => {
                 sessionStorage.setItem(focusKey, nameInput.value);
                 form.requestSubmit();
-            }, 450);
+            }, 500);
         });
     }
 
@@ -242,7 +242,7 @@ function showListFilters(
                 if (limitInput.checkValidity()) {
                     form.requestSubmit();
                 }
-            }, 600);
+            }, 500);
         });
     }
 })();

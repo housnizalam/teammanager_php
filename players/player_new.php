@@ -83,7 +83,6 @@ $con->close();
                                 type="text"
                                 id="name"
                                 name="name"
-                                maxlength="100"
                                 required
                             >
                         </div>
@@ -95,7 +94,7 @@ $con->close();
                                 type="number"
                                 id="age"
                                 name="age"
-                                min="1"
+                                min="15"
                                 required
                             >
                         </div>

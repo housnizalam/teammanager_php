@@ -1,4 +1,3 @@
-
 <?php
 include __DIR__ . "/../helpers/db.php";
 
@@ -19,6 +18,44 @@ if (!$player) {
 }
 
 $res->close();
+
+// ============================================
+// PLAYER ARCHIVE - Individual Honours
+// ============================================
+
+// Count awards from completed tournaments only.
+// The player_id remains the same across seasons.
+
+$awardsSql = "
+    SELECT
+        COUNT(CASE
+            WHEN best_player_id = ? THEN 1
+        END) AS best_player_count,
+
+        COUNT(CASE
+            WHEN top_scorer_id = ? THEN 1
+        END) AS top_scorer_count,
+
+        COUNT(CASE
+            WHEN top_assister_id = ? THEN 1
+        END) AS top_assister_count
+
+    FROM tournaments
+    WHERE is_played = 1
+";
+
+$awardsResult = $con->execute_query(
+    $awardsSql,
+    [
+        (int)$player_id,
+        (int)$player_id,
+        (int)$player_id
+    ]
+);
+
+$playerAwards = $awardsResult->fetch_assoc();
+$awardsResult->close();
+
 $con->close();
 ?>
 
@@ -29,7 +66,8 @@ $con->close();
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Player Archive Details</title>
-    <link rel="stylesheet" href="../assets/css/style.css">
+    <link rel="stylesheet"
+        href="../assets/css/style.css?v=<?= filemtime(__DIR__ . '/../assets/css/style.css') ?>">
 </head>
 
 <body class="page-inner page-player-details">
@@ -160,15 +198,18 @@ $con->close();
                 <?php
                 if ($player["seasons"] > 0) {
                     $avg_matches = round(
-                        $player["matches"] / $player["seasons"], 1
+                        $player["matches"] / $player["seasons"],
+                        1
                     );
 
                     $avg_goals = round(
-                        $player["goals"] / $player["seasons"], 1
+                        $player["goals"] / $player["seasons"],
+                        1
                     );
 
                     $avg_assists = round(
-                        $player["assists"] / $player["seasons"], 1
+                        $player["assists"] / $player["seasons"],
+                        1
                     );
                 ?>
 
@@ -200,6 +241,45 @@ $con->close();
                 <?php
                 }
                 ?>
+
+                <!-- ============================================
+                PLAYER ARCHIVE - Individual Honours
+                ============================================ -->
+
+                <div class="player-section-divider"></div>
+
+                <h2>Individual Honours</h2>
+
+                <div class="player-info-grid player-honours-grid">
+
+                    <!-- BEST PLAYER -->
+                    <div class="player-info-item player-honour-card">
+                        <label>Best Player</label>
+
+                        <div class="archive-info-value player-honour-count">
+                            <?= (int)$playerAwards['best_player_count'] ?>
+                        </div>
+                    </div>
+
+                    <!-- TOP SCORER -->
+                    <div class="player-info-item player-honour-card">
+                        <label>Top Scorer</label>
+
+                        <div class="archive-info-value player-honour-count">
+                            <?= (int)$playerAwards['top_scorer_count'] ?>
+                        </div>
+                    </div>
+
+                    <!-- TOP ASSISTER -->
+                    <div class="player-info-item player-honour-card">
+                        <label>Top Assister</label>
+
+                        <div class="archive-info-value player-honour-count">
+                            <?= (int)$playerAwards['top_assister_count'] ?>
+                        </div>
+                    </div>
+
+                </div>
 
             </section>
 

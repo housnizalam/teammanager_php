@@ -31,7 +31,7 @@ $filterOptions = [
 ];
 
 $filters = [
-     "name" => "name",
+    "name" => "name",
     "position" => "position",
     "team_name" => "team_name"
 ];
@@ -85,7 +85,7 @@ $formationRes->close();
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Archive Players</title>
-    <link rel="stylesheet" href="../assets/css/style.css">
+    <link rel="stylesheet" href="../assets/css/style.css?v=2">
 </head>
 
 <body class="page-inner page-team-details">
@@ -206,7 +206,20 @@ $formationRes->close();
                     </div>
 
                     <!-- BEST XI -->
-                    <?php showFormation($formationPlayers); ?>
+
+                    <?php
+                    // ============================================
+                    // ARCHIVE - Formation Player Details Links
+                    // ============================================
+
+                    showFormation(
+                        $formationPlayers,
+                        static fn(array $player): string =>
+                        'player_archive_details.php?player_id='
+                            . (int)$player['player_id']
+                    );
+                    ?>
+
 
                 </div>
 

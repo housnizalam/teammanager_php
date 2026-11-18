@@ -37,19 +37,32 @@
                 </a>
             </div>
 
-            <h2>Test Simulation</h2>
+            <!-- TOURNAMENTS SECTION -->
+            <h2>Tournaments</h2>
 
-            <form action="season/simulate.php" method="post">
+            <div class="app-panel">
 
-                <button type="submit" name="competition" value="league">
-                    Simulate League
-                </button>
+                <h3>Available Tournaments</h3>
 
-                <button type="submit" name="competition" value="champions">
-                    Simulate Champions League
-                </button>
+                <p>
+                    Manage league standings, European competitions,
+                    and tournament results.
+                </p>
 
-            </form>
+                <!-- TOURNAMENTS NAVIGATION -->
+                <a href="tournaments/leagues.php" class="app-button">
+                    Leagues
+                </a>
+
+                <a href="tournaments/champions.php" class="app-button">
+                    Champions League
+                </a>
+
+                <a href="tournaments/europa.php" class="app-button">
+                    Europa League
+                </a>
+
+            </div>
 
             <h2>Season Management</h2>
 

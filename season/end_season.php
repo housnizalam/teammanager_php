@@ -9,9 +9,7 @@ if (($_POST["end_season"] ?? "") != "yes") {
 try {
     $con->begin_transaction();
 
-    // ==================================
     // 1. Spieler archivieren
-    // ==================================
 
     $sql = "SELECT players.*, teams.name AS team_name
             FROM players
@@ -38,11 +36,30 @@ try {
             $goals = $archive["goals"] + $player["goals"];
             $assists = $archive["assists"] + $player["assists"];
 
-            // Durchschnitt nach Saisonanzahl
-            $rating = (
-                $archive["rating"] * $archive["seasons"]
-                + $player["rating"]
-            ) / $seasons;
+
+            /* ============================================
+   END SEASON - Player Rating Calculation
+   ============================================ */
+
+            if ((float)$player["rating"] > 0) {
+
+                // Player has a rating this season:
+                // Calculate the average as before.
+                $rating = (
+                    $archive["rating"] * $archive["seasons"]
+                    + $player["rating"]
+                ) / $seasons;
+            } else {
+
+                // Player has no rating this season:
+                // Decrease high historical ratings by 0.5.
+                $rating = (float)$archive["rating"];
+
+                if ($rating >= 7.0) {
+                    $rating -= 0.5;
+                }
+            }
+
 
             $sql = "UPDATE players_archive
                     SET name = ?, age = ?, position = ?,
@@ -87,9 +104,25 @@ try {
 
     $players->close();
 
-    // ==================================
+
+    // ============================================
+    // END SEASON - Inactive Players Rating Decay
+    // ============================================
+
+    // Players with no matches and no rating this season
+    // lose 0.5 from their archived rating if it is >= 7.
+
+    $con->query("
+    UPDATE players_archive AS pa
+    JOIN players AS p ON pa.player_id = p.id
+    SET pa.rating = pa.rating - 0.5
+    WHERE p.matches = 0
+      AND p.rating = 0
+      AND pa.rating >= 7
+");
+
+
     // 2. Teams archivieren
-    // ==================================
 
     $sql = "SELECT * FROM teams WHERE matches > 0";
     $teams = $con->query($sql);
@@ -137,9 +170,7 @@ try {
 
     $teams->close();
 
-    // ==================================
     // 3. Aktuelle Statistiken zurücksetzen
-    // ==================================
 
     $con->query(
         "UPDATE players

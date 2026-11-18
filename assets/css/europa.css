@@ -1,0 +1,123 @@
+/* ============================================
+   EUROPA - Available Teams and stage toolbar
+   ============================================ */
+#europa-available-section[hidden],
+#europa-team-list tr[hidden] {
+  display: none !important;
+}
+.europa-toolbar #europa-stage-counter {
+  display: inline-block;
+  margin-top: 4px;
+  color: var(--accent);
+  font-size: 13px;
+  font-weight: 700;
+}
+.europa-toolbar form {
+  flex-shrink: 0;
+}
+
+/* ============================================
+   EUROPA - Bracket selection and progression
+   Reuse the existing Champions layout classes.
+   ============================================ */
+.europa-bracket-section .champions-bracket-slot.europa-slot-filled {
+  border-style: solid;
+  color: var(--text);
+  font-size: 11px;
+  font-weight: 600;
+  padding: 3px 5px;
+  text-align: center;
+  overflow-wrap: anywhere;
+}
+.europa-bracket-section .champions-bracket-slot.europa-slot-clickable {
+  cursor: pointer;
+}
+.europa-bracket-section .champions-bracket-slot:not(.europa-slot-clickable) {
+  cursor: default;
+}
+.europa-bracket-section .champions-bracket-slot.europa-slot-clickable:hover,
+.europa-bracket-section .champions-bracket-slot.europa-slot-selected {
+  border: 2px solid var(--accent);
+  background: rgba(0, 229, 155, 0.16);
+}
+.europa-bracket-section
+  .champions-bracket-slot.europa-slot-clickable:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 3px;
+}
+.europa-bracket-section .champions-bracket-slot.champions-r16-winner,
+.europa-bracket-section .champions-bracket-slot.champions-qf-winner,
+.europa-bracket-section .champions-bracket-slot.champions-sf-winner,
+.europa-bracket-section .champions-bracket-slot.champions-final-winner {
+  border: 2px solid var(--accent);
+  background: rgba(0, 229, 155, 0.2);
+}
+.europa-bracket-section
+  .champions-bracket-board[data-finished="1"]
+  .champions-bracket-slot {
+  pointer-events: none;
+}
+
+@media (max-width: 750px) {
+  .europa-toolbar {
+    align-items: flex-start;
+  }
+}
+
+/* ============================================
+   EUROPA - Team Search
+   ============================================ */
+
+#europa-team-search {
+  width: 260px;
+  max-width: 100%;
+  padding: 11px 14px;
+
+  background: var(--bg-panel);
+  color: var(--text);
+
+  border: 1px solid var(--border);
+  border-radius: 8px;
+
+  font: inherit;
+  font-size: 14px;
+  outline: none;
+}
+
+#europa-team-search:focus {
+  border-color: var(--accent);
+}
+
+#europa-team-search::placeholder {
+  color: var(--text-muted);
+}
+
+/* ============================================
+   EUROPA - Bottom Team Search Bar
+   ============================================ */
+
+.europa-search-bar {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 14px;
+  padding: 12px 16px;
+  margin: 10px 0 16px;
+}
+
+.europa-search-bar label {
+  color: var(--text-muted);
+  font-size: 14px;
+  font-weight: 600;
+}
+
+@media (max-width: 600px) {
+  .europa-search-bar {
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  #europa-team-search {
+    width: 100%;
+  }
+}

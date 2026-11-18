@@ -1,0 +1,97 @@
+/* ============================================
+   TOURNAMENT AWARDS - Shared selection UI
+   ============================================ */
+.tournament-awards {
+    min-width: 0;
+    margin: 0 0 20px;
+    padding: 18px;
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    background: var(--bg-panel);
+}
+.tournament-awards legend {
+    padding: 0 7px;
+    font-size: 17px;
+    font-weight: 700;
+    color: var(--text);
+}
+.tournament-awards-hint {
+    color: var(--text-muted);
+    font-size: 13px;
+    margin: 0 0 15px;
+}
+.tournament-awards-grid {
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 16px;
+}
+.tournament-award-field {
+    min-width: 0;
+    position: relative;
+}
+.tournament-award-field label {
+    display: block;
+    color: var(--text-muted);
+    font-weight: 700;
+    font-size: 13px;
+    margin-bottom: 8px;
+}
+.tournament-award-search {
+    width: 100%;
+    min-height: 42px;
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 10px 12px;
+    background: #122b3e;
+    color: var(--text);
+    font: inherit;
+}
+.tournament-award-search:focus {
+    outline: 1px solid var(--accent);
+}
+.tournament-award-options {
+    position: absolute;
+    top: 100%;
+    left: 0;
+    right: 0;
+    z-index: 50;
+    max-height: 250px;
+    overflow-y: auto;
+    background: #102b3e;
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    box-shadow: 0 8px 20px rgba(0,0,0,0.3);
+}
+.tournament-award-options[hidden] { display: none; }
+.tournament-award-option {
+    display: flex;
+    flex-direction: column;
+    align-items: stretch;
+    gap: 3px;
+    width: 100%;
+    padding: 10px 12px;
+    background: transparent;
+    color: var(--text);
+    border: 0;
+    border-bottom: 1px solid var(--border);
+    text-align: left;
+    cursor: pointer;
+    font: inherit;
+}
+.tournament-award-option span { color: var(--text-muted); font-size: 12px; }
+.tournament-award-option:hover,
+.tournament-award-option.is-active { background: var(--bg-hover); }
+.tournament-awards-error { color: #ff9aa7; }
+@media (max-width: 800px) {
+    .tournament-awards-grid { grid-template-columns: 1fr; }
+}
+/* Keep all three fields above the Finish button. */
+.league-finalize form:has(.tournament-awards),
+.champions-finish-toolbar form:has(.tournament-awards) {
+    width: 100%;
+}
+.league-finalize form:has(.tournament-awards) > .league-action-button,
+.champions-finish-toolbar form:has(.tournament-awards) > .action-button {
+    display: block;
+    margin-left: auto;
+}

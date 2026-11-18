@@ -16,7 +16,7 @@ $team_id = $_POST["team_id"] ?? 0;
 // Zahlen prüfen
 if (
     !ctype_digit((string)$id) || (int)$id < 1 ||
-    !ctype_digit((string)$age) || (int)$age < 1 ||
+    !ctype_digit((string)$age) || (int)$age < 15 ||
     !ctype_digit((string)$matches) ||
     !ctype_digit((string)$goals) ||
     !ctype_digit((string)$assists) ||
