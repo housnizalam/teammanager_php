@@ -1,15 +1,40 @@
 
 <?php
-include __DIR__ . "/../helpers/db.php";
+require_once __DIR__ . "/../helpers/db.php";
+require_once __DIR__ . "/../helpers/season_awards.php";
 
 if (($_POST["end_season"] ?? "") != "yes") {
     exit("End Season was not confirmed.");
 }
 
+
 try {
     $con->begin_transaction();
 
+    // ============================================
+    // END SEASON - Resolve current season
+    // ============================================
+
+    $seasonResult = $con->query("
+        SELECT COALESCE(MAX(seasons), 0) + 1
+            AS current_season
+        FROM teams_archive
+    ");
+
+    $currentSeason = (int)$seasonResult
+        ->fetch_assoc()['current_season'];
+
+    $seasonResult->free();
+
+    // ============================================
+    // END SEASON - Save Best XI and Awards
+    // Must run before resetting player statistics.
+    // ============================================
+
+    saveSeasonAwards($con, $currentSeason);
+
     // 1. Spieler archivieren
+
 
     $sql = "SELECT players.*, teams.name AS team_name
             FROM players
@@ -38,8 +63,8 @@ try {
 
 
             /* ============================================
-   END SEASON - Player Rating Calculation
-   ============================================ */
+            END SEASON - Player Rating Calculation
+            ============================================ */
 
             if ((float)$player["rating"] > 0) {
 

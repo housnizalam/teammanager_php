@@ -74,16 +74,22 @@ try {
         );
     }
 
+
     // ============================================
-    // RATING FIX - Update player ratings
+    // RATING FIX - Team Bonus and Matches Penalty
     // ============================================
 
     $con->query("
-        UPDATE players AS p
-        JOIN teams AS t ON p.team_id = t.id
-        SET p.rating = p.rating + (t.points / 120)
-        WHERE p.rating > 0
-    ");
+    UPDATE players AS p
+    JOIN teams AS t ON p.team_id = t.id
+    SET p.rating = GREATEST(
+        0,
+        p.rating
+        + (t.points / 120)
+        - (GREATEST(0, 40 - p.matches) * 0.1)
+    )
+    WHERE p.rating > 0
+");
 
     // Mark this season as processed.
     $con->execute_query(
@@ -98,7 +104,6 @@ try {
 
     $_SESSION['rating_fix_message'] =
         'Player ratings updated successfully.';
-
 } catch (Throwable $exception) {
     $con->rollback();
 
