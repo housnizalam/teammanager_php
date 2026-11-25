@@ -86,7 +86,7 @@ try {
         0,
         p.rating
         + (t.points / 120)
-        - (GREATEST(0, 40 - p.matches) * 0.1)
+        - (GREATEST(0, 35 - p.matches) * 0.1)
     )
     WHERE p.rating > 0
 ");

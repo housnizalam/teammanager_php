@@ -18,8 +18,25 @@
         "R7": 104,
         "R8": 120
     },
-    "quarter_finals": [],
-    "semi_finals": [],
-    "finalists": [],
-    "winner": null
+    "quarter_finals": {
+        "Q1": 4,
+        "Q2": 183,
+        "Q3": 16,
+        "Q4": 55,
+        "Q5": 76,
+        "Q6": 52,
+        "Q7": 60,
+        "Q8": 120
+    },
+    "semi_finals": {
+        "S1": 4,
+        "S2": 16,
+        "S3": 76,
+        "S4": 60
+    },
+    "finalists": {
+        "F2": 60,
+        "F1": 4
+    },
+    "winner": 4
 }
