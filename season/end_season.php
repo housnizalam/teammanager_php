@@ -208,8 +208,41 @@ try {
          SET matches = 0, points = 0"
     );
 
+
+    // ============================================
+    // END SEASON - Initialize Next Season Tournaments
+    // ============================================
+
+    $nextSeason = $currentSeason + 1;
+
+    $competitions = [
+        'league_england',
+        'league_spain',
+        'league_italy',
+        'league_germany',
+        'league_france',
+        'league_portugal',
+        'league_netherlands',
+        'league_turkey',
+        'league_rest',
+        'champions',
+        'europa'
+    ];
+
+    foreach ($competitions as $competition) {
+        $con->execute_query(
+            "INSERT INTO tournaments
+            (season, competition, is_played)
+         VALUES (?, ?, 0)
+         ON DUPLICATE KEY UPDATE id = id",
+            [$nextSeason, $competition]
+        );
+    }
+
+
     // Alle Änderungen speichern
     $con->commit();
+
     $con->close();
 
     header("Location: ../index.php");

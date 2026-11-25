@@ -8,6 +8,7 @@ if (session_status() === PHP_SESSION_NONE) {
 require_once __DIR__ . '/../helpers/db.php';
 require_once __DIR__ . '/../helpers/tournament_storage.php';
 require_once __DIR__ . '/../helpers/tournament_awards_ui.php';
+require_once __DIR__ . '/../helpers/europa_qualification.php';
 
 $_SESSION['europa_csrf'] ??= bin2hex(random_bytes(32));
 
@@ -55,6 +56,59 @@ foreach ($teams as $team) {
 $nations = array_keys($nations);
 sort($nations, SORT_NATURAL | SORT_FLAG_CASE);
 
+
+
+// ============================================
+// EUROPA - Highlight Domestic Qualification Candidates
+// ============================================
+
+$europaCandidateIds = [];
+$europaCandidateError = null;
+
+try {
+    $candidates = getEuropaDomesticCandidates(
+        $currentSeason
+    );
+
+    // Map team ID to its domestic league.
+    foreach ($candidates as $league => $teamId) {
+        if (!isset($teamsById[$teamId])) {
+            throw new RuntimeException(
+                "Qualified team {$teamId} was not found."
+            );
+        }
+
+        $europaCandidateIds[$teamId] = $league;
+    }
+
+    // ============================================
+    // EUROPA - Move Candidates to End of Team List
+    // ============================================
+
+    $regularTeams = [];
+    $qualifiedTeams = [];
+
+    foreach ($teams as $team) {
+        $teamId = (int)$team['id'];
+
+        if (isset($europaCandidateIds[$teamId])) {
+            $qualifiedTeams[] = $team;
+        } else {
+            $regularTeams[] = $team;
+        }
+    }
+
+    $teams = array_merge(
+        $regularTeams,
+        $qualifiedTeams
+    );
+} catch (Throwable $e) {
+    // Keep the existing manual team selection available.
+    $europaCandidateIds = [];
+    $europaCandidateError = $e->getMessage();
+}
+
+
 // ============================================
 // EUROPA - Load saved knockout progress
 // ============================================
@@ -76,7 +130,7 @@ $encodeJson = static fn(mixed $value): string => json_encode(
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Europa League - Football Manager</title>
     <link rel="stylesheet" href="../assets/css/style.css?v=europa-1">
-    <link rel="stylesheet" href="../assets/css/europa.css?v=3">
+    <link rel="stylesheet" href="../assets/css/europa.css?v=4">
     <link rel="stylesheet" href="../assets/css/tournament_awards.css?v=1">
 </head>
 
@@ -105,6 +159,30 @@ $encodeJson = static fn(mixed $value): string => json_encode(
                     Select a Round of 16 slot below, then add a team here.
                     Each team can be selected only once.
                 </p>
+
+
+                <!-- ============================================
+     EUROPA - Domestic Qualification Information
+     ============================================ -->
+
+                <?php if (count($europaCandidateIds) === 9): ?>
+                    <p class="page-subtitle">
+                        The nine green-highlighted teams at the bottom
+                        are the best non-Champions-League teams
+                        from the previous domestic league season.
+                    </p>
+                <?php elseif ($europaCandidateError !== null): ?>
+                    <p class="page-subtitle" role="status">
+                        Domestic qualification suggestions unavailable:
+                        <?= htmlspecialchars(
+                            $europaCandidateError,
+                            ENT_QUOTES,
+                            'UTF-8'
+                        ) ?>
+                    </p>
+                <?php endif; ?>
+
+
                 <div class="filter-panel champions-filter">
                     <label for="europa-nation">Nation</label>
                     <select id="europa-nation">
@@ -127,9 +205,17 @@ $encodeJson = static fn(mixed $value): string => json_encode(
                             </tr>
                         </thead>
                         <tbody id="europa-team-list">
+
                             <?php foreach ($teams as $team): ?>
+                                <?php
+                                $teamId = (int)$team['id'];
+                                $isDomesticCandidate = isset($europaCandidateIds[$teamId]);
+                                ?>
+
                                 <tr
-                                    data-team-id="<?= (int) $team['id'] ?>"
+                                    class="<?= $isDomesticCandidate ? 'europa-qualified-row' : '' ?>"
+                                    data-team-id="<?= $teamId ?>"
+
                                     data-team-name="<?= htmlspecialchars($team['name'], ENT_QUOTES, 'UTF-8') ?>"
                                     data-nation="<?= htmlspecialchars($team['nation'] ?? '', ENT_QUOTES, 'UTF-8') ?>">
                                     <td><?= htmlspecialchars($team['name'], ENT_QUOTES, 'UTF-8') ?></td>
@@ -142,8 +228,6 @@ $encodeJson = static fn(mixed $value): string => json_encode(
                 </div>
             </section>
 
-
-            </section>
 
             <!-- ============================================
                  EUROPA - Team Search

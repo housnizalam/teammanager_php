@@ -121,3 +121,26 @@
     width: 100%;
   }
 }
+
+
+/* ============================================
+   EUROPA - Domestic Qualification Candidates
+   ============================================ */
+
+.data-table tbody tr.europa-qualified-row {
+    background: rgba(0, 214, 143, 0.12);
+}
+
+.data-table tbody tr.europa-qualified-row td {
+    border-bottom-color: rgba(0, 214, 143, 0.25);
+}
+
+.data-table tbody tr.europa-qualified-row td:first-child {
+    color: #38e5ab;
+    font-weight: 700;
+    border-left: 3px solid #00d68f;
+}
+
+.data-table tbody tr.europa-qualified-row:hover {
+    background: rgba(0, 214, 143, 0.20);
+}

@@ -20,6 +20,7 @@ $_SESSION['champions_csrf'] ??= bin2hex(random_bytes(32));
 
 require_once __DIR__ . '/../helpers/db.php';
 require_once __DIR__ . '/../helpers/tournament_awards_ui.php';
+require_once __DIR__ . '/../helpers/champions_qualification.php';
 
 
 // ============================================
@@ -97,12 +98,71 @@ $savedProgress = loadTournamentProgress(
     'champions'
 );
 
-$savedPots = $savedProgress['pots'] ?? [
+
+// ============================================
+// CHAMPIONS - Load Saved or Automatic Pots
+// ============================================
+
+$emptyPots = [
     '1' => [],
     '2' => [],
     '3' => [],
     '4' => []
 ];
+
+$savedPots = $savedProgress['pots'] ?? $emptyPots;
+
+$automaticQualificationError = null;
+$automaticQualificationApplied = false;
+
+// Automatic qualification only for a new tournament.
+// Never overwrite saved progress or a completed tournament.
+
+if (
+    !$isPlayed &&
+    empty($savedProgress) &&
+    $currentSeason > 1
+) {
+    try {
+        $qualification = buildChampionsQualifiedTeams(
+            $con,
+            $currentSeason
+        );
+
+        // ============================================
+        // CHAMPIONS - Verify Current Team IDs
+        // ============================================
+
+        $availableIds = array_fill_keys(
+            array_map(
+                static fn(array $team): int => (int)$team['id'],
+                $teams
+            ),
+            true
+        );
+
+        $automaticPots = $emptyPots;
+
+        foreach ($qualification['pots'] as $pot => $teamIds) {
+            foreach ($teamIds as $teamId) {
+                if (!isset($availableIds[$teamId])) {
+                    throw new RuntimeException(
+                        "Qualified team {$teamId} no longer exists."
+                    );
+                }
+            }
+
+            $automaticPots[(string)$pot] = $teamIds;
+        }
+
+        $savedPots = $automaticPots;
+        $automaticQualificationApplied = true;
+    } catch (Throwable $e) {
+        // Keep the manual selection available on failure.
+        $automaticQualificationError = $e->getMessage();
+    }
+}
+
 
 
 // ============================================
@@ -124,7 +184,7 @@ $potsReady = true;
 $selectedIds = [];
 
 for ($pot = 1; $pot <= 4; $pot++) {
-    $ids = $savedPots[(string) $pot] ?? [];
+    $ids = $savedProgress['pots'][(string) $pot] ?? [];
 
     if (!is_array($ids) || count($ids) !== 8) {
         $potsReady = false;
@@ -244,6 +304,30 @@ $potsReady = $potsReady
                         Select exactly 8 teams for each pot.
                         A team can only be selected once.
                     </p>
+
+
+                    <!-- ============================================
+                    CHAMPIONS - Automatic Qualification Status
+                    ============================================ -->
+
+                    <?php if ($automaticQualificationApplied): ?>
+                        <p class="champions-save-message" role="status">
+                            Teams automatically qualified from Season
+                            <?= (int)($currentSeason - 1) ?>.
+                            Review the four pots and click Save.
+                        </p>
+                    <?php elseif ($automaticQualificationError !== null): ?>
+                        <p class="page-subtitle" role="alert">
+                            Automatic qualification unavailable:
+                            <?= htmlspecialchars(
+                                $automaticQualificationError,
+                                ENT_QUOTES,
+                                'UTF-8'
+                            ) ?>
+                            You can select teams manually.
+                        </p>
+                    <?php endif; ?>
+
 
                     <!-- CHAMPIONS - Four pots -->
                     <div class="champions-pots">
